@@ -1,16 +1,17 @@
 
 #!/usr/bin/env python3
-"""
-wrong_color_prob_robustness_v2.py — Single-file wrong color robustness analysis
-"""
 
 import argparse, os, sys, math, importlib.util, types
 from pathlib import Path
 from typing import List, Dict, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
+import scienceplots
 
 ROOT = Path(__file__).resolve().parent
+
+plt.style.use('ieee')
+plt.rcParams.update({'font.serif': ['Times New Roman'], 'font.family': 'serif'})
 
 def load_as(subname: str, file: str):
     modname = f"hypercube.{subname}"
@@ -218,8 +219,8 @@ def plot_gain(rows, outdir="dist/mis_tag_prob"):
     g = [r["gain_pct"] for r in rows]
     plt.figure(figsize=(7,4))
     plt.plot(p, g, marker="o")
-    plt.xlabel("Wrong color with probability p")
-    plt.ylabel("Gain (%)")
+    plt.xlabel("Wrong color with probability $p$")
+    plt.ylabel("Gain over default (%)")
     plt.grid(True, alpha=0.3)
     path = os.path.join(outdir, "gain_vs_p.png")
     plt.tight_layout(); plt.savefig(path, dpi=160)

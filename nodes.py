@@ -31,7 +31,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Set this flag to False to use dynamically generated random hardware SKUs.
-USE_CONTROLLED_SKUS = False
+USE_CONTROLLED_SKUS = True
 
 
 # --- Controlled SKU Definitions ---

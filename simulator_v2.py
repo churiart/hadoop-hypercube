@@ -146,11 +146,20 @@ def execute_single_strategy_simulation(
     tasks: List[Task] = []
     job_id = 0
     t_id = 0
+    # Job Tracking
+    job_task_counts: Dict[int, int] = {}
+    job_finished_counts: Dict[int, int] = {}
+    individual_jcts: List[float] = []
+
     for b in range(num_blocks):
-        if b % JOB_SIZE == 0 and b > 0:
-            job_id += 1
+        current_job_id = b // JOB_SIZE # job_id based on JOB_SIZE
+        if current_job_id not in job_task_counts:
+             job_task_counts[current_job_id] = 0
+             job_finished_counts[current_job_id] = 0
+        job_task_counts[current_job_id] += 1
+
         tag = _sample_tag(tag_distribution)
-        tasks.append(Task(task_id=t_id, job_id=job_id, tag=tag, nodes=blocks_replicas[b], creation_time=float(b)))
+        tasks.append(Task(task_id=t_id, job_id=current_job_id, tag=tag, nodes=blocks_replicas[b], creation_time=float(b)))
         t_id += 1
 
     # Queues/state
@@ -290,6 +299,12 @@ def execute_single_strategy_simulation(
             t.assigned_node.finish_task()
             running.remove(t)
             finished_this_tick.append(t)
+
+            current_job_id = t.job_id
+            job_finished_counts[current_job_id] += 1
+            if job_finished_counts[current_job_id] == job_task_counts[current_job_id]:
+                individual_jcts.append(now)
+
             # cancel any duplicates still running
             for other in list(duplicates.get(t.task_id, [])):
                 if other is t:
@@ -385,6 +400,7 @@ def execute_single_strategy_simulation(
             p90=float(np.percentile(exec_net_p_values, 90)) if exec_net_p_values else 0.0,
         ),
         starts_by_level=dict(level0=int(starts_level0), level1=int(starts_level1), level2=int(starts_level2)),
+        individual_job_completion_times=individual_jcts
     ) if collect_details else {}
 
     return details

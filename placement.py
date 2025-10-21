@@ -25,7 +25,7 @@ import numpy as np
 from .nodes import DataNode
 
 # Set this flag to False to use dynamically generated random workloads.
-USE_CONTROLLED_WORKLOAD = False
+USE_CONTROLLED_WORKLOAD = True
 
 
 # --- Controlled Workload Definitions ---

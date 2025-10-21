@@ -12,6 +12,7 @@ from typing import Dict
 
 import numpy as np
 import matplotlib.pyplot as plt
+import scienceplots
 
 from .nodes import (
     DataNode, generate_nodes, kmeans_cluster, compute_centroid_bit_mapping,
@@ -39,6 +40,9 @@ NUM_RACKS = 10
 K = 81
 NUM_BLOCKS = 1000
 SEED = 42
+
+plt.style.use('ieee')
+plt.rcParams.update({'font.serif': ['Times New Roman'], 'font.family': 'serif'})
 
 def _build_cluster(num_nodes: int = NUM_NODES, num_racks: int = NUM_RACKS, k: int = K, seed: int = SEED):
     print("Generating canonical cluster layout...")
@@ -141,12 +145,12 @@ def plot_summary(results: Dict[str, Dict], output_dir: str = "dist") -> None:
 
     fig, axs = plt.subplots(1, 3, figsize=(14, 4))
     bars1 = axs[0].bar(labels, net)
-    axs[0].set_title("Network MB (speculative non-local reads)")
-    axs[0].set_ylim(bottom=0)  # Ensure we see zero baseline
+    #axs[0].set_title("Network MB (speculative non-local reads)")
+    axs[0].set_ylim(bottom=0)
 
     bars2 = axs[1].bar(labels, req)
-    axs[1].set_title("Speculation requests")
-    axs[1].set_ylim(bottom=0)  # Ensure we see zero baseline
+    #axs[1].set_title("Speculation requests")
+    axs[1].set_ylim(bottom=0)
     
     for bar, val in zip(bars1, net):
         axs[0].text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01, 
@@ -162,7 +166,7 @@ def plot_summary(results: Dict[str, Dict], output_dir: str = "dist") -> None:
         y = np.arange(1, arr.size + 1, dtype=float) / float(arr.size)
         x_clip = np.percentile(arr, 99) if arr.size > 1 else arr[-1]
         axs[2].step(np.clip(arr, arr[0], x_clip), y, where="post", label=k)
-    axs[2].set_title("CDF of completion times")
+    #axs[2].set_title("CDF of completion times")
     axs[2].legend()
     plt.tight_layout()
 
@@ -174,7 +178,7 @@ def plot_summary(results: Dict[str, Dict], output_dir: str = "dist") -> None:
     except Exception as e:
         print(f"Warning: failed to save plot: {e}")
 
-    plt.show()
+    #plt.show()
 
 
 def plot_replica_and_task_distributions(results_by_condition: Dict[str, Dict[str, Dict]], output_dir: str = "dist") -> None:
@@ -194,7 +198,7 @@ def plot_replica_and_task_distributions(results_by_condition: Dict[str, Dict[str
             fig, ax = plt.subplots(figsize=(11, 4))
             ax.plot(x, np.array(vals_def)[order], label="Default", lw=1.6)
             ax.plot(x, np.array(vals_hyp)[order], label="Hypercube", lw=1.6)
-            ax.set_title(f"Replica (block) count per DataNode ({cond})")
+            #ax.set_title(f"Replica (block) count per DataNode ({cond})")
             ax.set_xlabel("Node index (sorted by Default)")
             ax.set_ylabel("Replica count")
             ax.legend()
@@ -215,7 +219,7 @@ def plot_replica_and_task_distributions(results_by_condition: Dict[str, Dict[str
             fig, ax = plt.subplots(figsize=(11, 4))
             ax.plot(x, np.array(vals_def)[order], label="Default", lw=1.6)
             ax.plot(x, np.array(vals_hyp)[order], label="Hypercube", lw=1.6)
-            ax.set_title(f"Tasks per DataNode ({cond})")
+            #ax.set_title(f"Tasks per DataNode ({cond})")
             ax.set_xlabel("Node index (sorted by Default)")
             ax.set_ylabel("Tasks")
             ax.legend()
@@ -239,11 +243,11 @@ def plot_per_strategy_sorted(results_by_condition: Dict[str, Dict[str, Dict]], o
             ymax = float(max(v_def.max(initial=0), v_hyp.max(initial=0)))
             fig, axs = plt.subplots(1, 2, figsize=(12, 4), sharey=True)
             axs[0].plot(np.arange(n_def), v_def, color="C0")
-            axs[0].set_title(f"Default (sorted by Default)")
+            #axs[0].set_title(f"Default (sorted by Default)")
             axs[0].set_xlabel("Node index")
             axs[0].set_ylabel("Tasks")
             axs[1].plot(np.arange(n_hyp), v_hyp, color="C1")
-            axs[1].set_title(f"Hypercube (sorted by Hypercube)")
+            #axs[1].set_title(f"Hypercube (sorted by Hypercube)")
             axs[1].set_xlabel("Node index")
             for ax in axs:
                 ax.set_ylim(0, max(1.0, ymax))
@@ -251,7 +255,7 @@ def plot_per_strategy_sorted(results_by_condition: Dict[str, Dict[str, Dict]], o
             total_hyp = int(v_hyp.sum())
             axs[0].text(0.02, 0.94, f"Total={total_def}", transform=axs[0].transAxes, ha="left", va="top")
             axs[1].text(0.02, 0.94, f"Total={total_hyp}", transform=axs[1].transAxes, ha="left", va="top")
-            fig.suptitle(f"Tasks per DataNode (per-strategy sort) — {cond}")
+            #fig.suptitle(f"Tasks per DataNode (per-strategy sort) — {cond}")
             fig.tight_layout()
             fig.savefig(os.path.join(output_dir, f"tasks_per_node_per_strategy_sorted_{cond}.png"), dpi=150)
             plt.close(fig)
@@ -266,11 +270,11 @@ def plot_per_strategy_sorted(results_by_condition: Dict[str, Dict[str, Dict]], o
             ymax = float(max(v_def.max(initial=0), v_hyp.max(initial=0)))
             fig, axs = plt.subplots(1, 2, figsize=(12, 4), sharey=True)
             axs[0].plot(np.arange(n_def), v_def, color="C0")
-            axs[0].set_title(f"Default (sorted by Default)")
+            #axs[0].set_title(f"Default (sorted by Default)")
             axs[0].set_xlabel("Node index")
             axs[0].set_ylabel("Replica count")
             axs[1].plot(np.arange(n_hyp), v_hyp, color="C1")
-            axs[1].set_title(f"Hypercube (sorted by Hypercube)")
+            #axs[1].set_title(f"Hypercube (sorted by Hypercube)")
             axs[1].set_xlabel("Node index")
             for ax in axs:
                 ax.set_ylim(0, max(1.0, ymax))
@@ -278,7 +282,7 @@ def plot_per_strategy_sorted(results_by_condition: Dict[str, Dict[str, Dict]], o
             total_hyp = int(v_hyp.sum())
             axs[0].text(0.02, 0.94, f"Total={total_def}", transform=axs[0].transAxes, ha="left", va="top")
             axs[1].text(0.02, 0.94, f"Total={total_hyp}", transform=axs[1].transAxes, ha="left", va="top")
-            fig.suptitle(f"Replica count per DataNode (per-strategy sort) — {cond}")
+            #fig.suptitle(f"Replica count per DataNode (per-strategy sort) — {cond}")
             fig.tight_layout()
             fig.savefig(os.path.join(output_dir, f"replicas_per_node_per_strategy_sorted_{cond}.png"), dpi=150)
             plt.close(fig)
@@ -383,11 +387,11 @@ def plot_spec_remote_reasons(results_by_condition: Dict[str, Dict[str, Dict]], o
         ax.bar(x + width/2, despite, width, label=labels[1], color="gray")
         ax.set_xticks(x)
         ax.set_xticklabels([c.replace('_', ' ') for c in conditions])
-        ax.set_title(method.capitalize())
+        #ax.set_title(method.capitalize())
         ax.set_ylabel("Remote spec starts")
         ax.legend()
 
-    fig.suptitle("Remote speculative starts: reasons")
+    #fig.suptitle("Remote speculative starts: reasons")
     fig.tight_layout()
     fig.savefig(os.path.join(output_dir, "spec_remote_reasons.png"), dpi=150)
     plt.close(fig)
@@ -432,6 +436,7 @@ def _print_cdf_completion_times(condition: str, res_default: Dict, res_hyper: Di
         print(f"  Hypercube: No completion times available")
 
 def plot_completion_percentiles(results_by_condition: Dict[str, Dict[str, Dict]], output_dir: str = "dist/percentiles") -> None:
+
     #Plot p95 and p99 completion times per strategy, per condition.
     os.makedirs(output_dir, exist_ok=True)
 
@@ -450,20 +455,20 @@ def plot_completion_percentiles(results_by_condition: Dict[str, Dict[str, Dict]]
         fig, axs = plt.subplots(1, 2, figsize=(9, 4), sharey=True)
         # p95
         axs[0].bar(["Default", "Hypercube"], [p95_d, p95_h], color=["C0", "C1"])
-        axs[0].set_title("p95")
-        axs[0].set_ylabel("Completion time (s)")
+        #axs[0].set_title("p95")
+        axs[0].set_ylabel("Completion time (a.u.)")
         for x, v in zip([0, 1], [p95_d, p95_h]):
             axs[0].text(x, v, f"{v:.2f}", ha="center", va="bottom", fontsize=8)
         # p99
         axs[1].bar(["Default", "Hypercube"], [p99_d, p99_h], color=["C0", "C1"])
-        axs[1].set_title("p99")
+        #axs[1].set_title("p99")
         for x, v in zip([0, 1], [p99_d, p99_h]):
             axs[1].text(x, v, f"{v:.2f}", ha="center", va="bottom", fontsize=8)
 
-        fig.suptitle(f"Completion time percentiles — {cond.replace('_', ' ')}")
+        #fig.suptitle(f"Completion time percentiles — {cond.replace('_', ' ')}")
         fig.tight_layout()
         fig.savefig(os.path.join(output_dir, f"{cond}_p95_p99.png"), dpi=150)
-        plt.close(fig)
+        plt.close(fig) 
 
 def run_systematic_degradation_analysis_alongside() -> None:
     try:
@@ -477,6 +482,7 @@ def main() -> Dict[str, Dict]:
 
     import copy
     results = {}
+    jct_results = {}
 
     print("\n\n--- Running Simulation Condition: no_stragglers ---")
     res_default = _run_one_strategy("Default HDFS", copy.deepcopy(nodes), registry, centroids, cutpoints, speculative=True)
@@ -485,6 +491,11 @@ def main() -> Dict[str, Dict]:
     registry_hyper = build_registry(nodes_hyper)
     res_hyper   = _run_one_strategy("Hypercube",   nodes_hyper, registry_hyper, centroids, cutpoints, speculative=True)
     results["no_stragglers"] = {"default": res_default, "hyper": res_hyper}
+
+    jct_results["no_stragglers"] = {
+        "default": res_default.get("individual_job_completion_times", []),
+        "hyper": res_hyper.get("individual_job_completion_times", [])
+    }
 
     # Quick plots
     flat_no = {"Default": res_default, "Hypercube": res_hyper}
@@ -504,6 +515,11 @@ def main() -> Dict[str, Dict]:
     registry_ws_h = build_registry(nodes_ws_h)
     res_hyper_ws   = _run_one_strategy("Hypercube",   nodes_ws_h, registry_ws_h, centroids, cutpoints, speculative=True)
     results["with_stragglers"] = {"default": res_default_ws, "hyper": res_hyper_ws}
+
+    jct_results["with_stragglers"] = {
+        "default": res_default_ws.get("individual_job_completion_times", []),
+        "hyper": res_hyper_ws.get("individual_job_completion_times", [])
+    }
 
     flat_ws = {"Default": res_default_ws, "Hypercube": res_hyper_ws}
     plot_summary(flat_ws, output_dir=os.path.join("dist", "with_stragglers"))
@@ -537,10 +553,147 @@ def main() -> Dict[str, Dict]:
         output_dir=os.path.join("dist", "percentiles")
     )
 
+    plot_jct_percentiles(jct_results, output_dir=os.path.join("dist", "jct_percentiles"))
+    plot_jct_cdf(jct_results, output_dir=os.path.join("dist", "jct_cdf"))
+
     # run_sensitivity_analysis()
 
     return results
 
+def plot_jct_percentiles(jct_results: Dict[str, Dict[str, List[float]]], output_dir: str = "dist/jct_percentiles") -> None:
+    """p95 and p99 JCT per strategy, per condition."""
+    os.makedirs(output_dir, exist_ok=True)
+
+    def _pcts(arr_list):
+        if not arr_list:
+            return (0.0, 0.0)
+        a = np.array(arr_list, dtype=float)
+        if a.size == 0:
+            return (0.0, 0.0)
+        q = [95, 99]
+        if a.size == 1:
+             p_vals = [float(a[0]), float(a[0])]
+        else:
+             p_vals = [float(np.percentile(a, p)) for p in q]
+        return tuple(p_vals)
+
+    conditions = ["no_stragglers", "with_stragglers"]
+    percentile_values = {}
+
+    print("\n--- JCT percentiles ---")
+    for cond in conditions:
+        print(f"\nCondition: {cond.replace('_', ' ')}")
+        percentile_values[cond] = {}
+        res_def_jcts = jct_results.get(cond, {}).get("default", [])
+        res_hyp_jcts = jct_results.get(cond, {}).get("hyper", [])
+
+        p95_d, p99_d = _pcts(res_def_jcts)
+        p95_h, p99_h = _pcts(res_hyp_jcts)
+        percentile_values[cond]["default"] = (p95_d, p99_d)
+        percentile_values[cond]["hyper"] = (p95_h, p99_h)
+        print(f"  Default : p95={p95_d:.3f}, p99={p99_d:.3f} (from {len(res_def_jcts)} jobs)")
+        print(f"  Hypercube: p95={p95_h:.3f}, p99={p99_h:.3f} (from {len(res_hyp_jcts)} jobs)")
+
+        fig, axs = plt.subplots(1, 2, figsize=(10, 4.5), sharey=True)
+        strategies = ["Default", "Hypercube"]
+
+        p95_vals = [p95_d, p95_h]
+        p99_vals = [p99_d, p99_h]
+
+        max_val_p95 = max(p95_vals) if p95_vals else 0
+        max_val_p99 = max(p99_vals) if p99_vals else 0
+        upper_limit = max(max_val_p95, max_val_p99) * 1.15
+
+        bars_95 = axs[0].bar(strategies, p95_vals, color=["C0", "C1"])
+        #axs[0].set_title("P95 JCT")
+        axs[0].set_ylabel("Job Completion Time")
+        for bar, val in zip(bars_95, p95_vals):
+            axs[0].text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f"{val:.2f}",
+                        ha="center", va="bottom", fontsize=9)
+
+        bars_99 = axs[1].bar(strategies, p99_vals, color=["C0", "C1"])
+        #axs[1].set_title("P99 JCT")
+        for bar, val in zip(bars_99, p99_vals):
+            axs[1].text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f"{val:.2f}",
+                        ha="center", va="bottom", fontsize=9)
+
+        axs[0].set_ylim(0, upper_limit if upper_limit > 0 else 1)
+
+        #fig.suptitle(f"JCT percentiles — {cond.replace('_', ' ')}")
+        fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+        plot_path = os.path.join(output_dir, f"{cond}_jct_p95_p99.png")
+        try:
+            fig.savefig(plot_path, dpi=150)
+            print(f"Saved JCT percentile plot to {plot_path}")
+        except Exception as e:
+            print(f"Warning: failed to save JCT percentile plot for {cond}: {e}")
+        plt.close(fig)
+
+
+def plot_jct_cdf(jct_results: Dict[str, Dict[str, List[float]]], output_dir: str = "dist/jct_cdf") -> None:
+    """CDF of JCT"""
+    os.makedirs(output_dir, exist_ok=True)
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    conditions = ["no_stragglers", "with_stragglers"]
+    fig, axs = plt.subplots(1, len(conditions), figsize=(12, 5), sharey=True)
+
+    if len(conditions) == 1:
+        axs = [axs]
+
+    print("\n--- Generating JCT CDF Plots ---")
+    for i, cond in enumerate(conditions):
+        ax = axs[i]
+        condition_label = cond.replace('_', ' ')
+        print(f"  Processing condition: {condition_label}")
+
+        has_data = False
+        max_x_val = 0
+
+        jcts_def = jct_results.get(cond, {}).get("default", [])
+        if jcts_def:
+            sorted_jcts_def = np.sort(np.array(jcts_def, dtype=float))
+            y_def = np.arange(1, len(sorted_jcts_def) + 1) / len(sorted_jcts_def)
+            ax.step(sorted_jcts_def, y_def, where="post", label="Default", color="C0", linewidth=1.8)
+            max_jct_def = sorted_jcts_def[-1]
+            max_x_val = max(max_x_val, max_jct_def)
+            ax.text(max_jct_def, 1.0, f'{max_jct_def:.2f}', color='C0', ha='right', va='bottom', fontsize=8)
+            print(f"    Default: {len(jcts_def)} JCTs, Max={max_jct_def:.2f}")
+            has_data = True
+
+        jcts_hyp = jct_results.get(cond, {}).get("hyper", [])
+        if jcts_hyp:
+            sorted_jcts_hyp = np.sort(np.array(jcts_hyp, dtype=float))
+            y_hyp = np.arange(1, len(sorted_jcts_hyp) + 1) / len(sorted_jcts_hyp)
+            ax.step(sorted_jcts_hyp, y_hyp, where="post", label="Hypercube", color="C1", linewidth=1.8)
+            max_jct_hyp = sorted_jcts_hyp[-1]
+            max_x_val = max(max_x_val, max_jct_hyp)
+            ax.text(max_jct_hyp, 1.0, f'{max_jct_hyp:.2f}', color='C1', ha='right', va='bottom', fontsize=8)
+            print(f"    Hypercube: {len(jcts_hyp)} JCTs, Max={max_jct_hyp:.2f}")
+            has_data = True
+
+        #ax.set_title(f"JCT CDF ({condition_label})")
+        ax.set_xlabel("Job Completion Time")
+        if i == 0:
+            ax.set_ylabel("Cumulative probability")
+        ax.grid(True, linestyle='--', alpha=0.6)
+        ax.set_ylim(0, 1.05)
+        ax.set_xlim(left=0, right=max_x_val * 1.1 if max_x_val > 0 else 1)
+        if has_data:
+            ax.legend()
+        else:
+             ax.text(0.5, 0.5, "No JCT data available", ha='center', va='center', transform=ax.transAxes)
+
+
+    fig.tight_layout()
+    plot_path = os.path.join(output_dir, "jct_cdf_comparison.png")
+    try:
+        fig.savefig(plot_path, dpi=150)
+        print(f"Saved JCT CDF plot to {plot_path}")
+    except Exception as e:
+        print(f"Warning: failed to save JCT CDF plot: {e}")
+    plt.close(fig)
 
 def run_sensitivity_analysis() -> None:
     """
@@ -595,7 +748,6 @@ def run_sensitivity_analysis() -> None:
         m_def = float(np.mean(means_def)) if means_def else 0.0
         m_hyp = float(np.mean(means_hyp)) if means_hyp else 0.0
         gain = (m_def - m_hyp) / m_def * 100.0 if m_def > 0 else 0.0
-        # Extra diagnostics to verify behavior without changing theory
         def _loc_mix(res):
             loc = res.get("launch_locality", {})
             total = sum(loc.values()) or 1
@@ -659,7 +811,7 @@ def run_sensitivity_analysis() -> None:
         ax.plot(xs, gains, marker='o')
         ax.set_xlabel("Hardware variance factor")
         ax.set_ylabel("Hypercube gain (%)")
-        ax.set_title("Sensitivity to hardware heterogeneity")
+        #ax.set_title("Sensitivity to hardware heterogeneity")
         ax.grid(True, linestyle='--', alpha=0.4)
         ax.invert_xaxis()
         fig.tight_layout()
